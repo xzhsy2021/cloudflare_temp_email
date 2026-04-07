@@ -2,6 +2,9 @@ import { APIRequestContext } from '@playwright/test';
 import WebSocket from 'ws';
 
 export const WORKER_URL = process.env.WORKER_URL!;
+export const WORKER_URL_SUBDOMAIN = process.env.WORKER_URL_SUBDOMAIN || '';
+export const WORKER_URL_ENV_OFF = process.env.WORKER_URL_ENV_OFF || '';
+export const WORKER_GZIP_URL = process.env.WORKER_GZIP_URL || '';
 export const FRONTEND_URL = process.env.FRONTEND_URL!;
 export const MAILPIT_API = process.env.MAILPIT_API!;
 export const TEST_DOMAIN = 'test.example.com';
@@ -16,7 +19,7 @@ export async function createTestAddress(
   ctx: APIRequestContext,
   name: string,
   domain: string = TEST_DOMAIN
-): Promise<{ jwt: string; address: string }> {
+): Promise<{ jwt: string; address: string; address_id: number }> {
   const uniqueName = `${name}${Date.now()}`;
   const res = await ctx.post(`${WORKER_URL}/api/new_address`, {
     data: { name: uniqueName, domain },
@@ -25,7 +28,7 @@ export async function createTestAddress(
     throw new Error(`Failed to create address: ${res.status()} ${await res.text()}`);
   }
   const body = await res.json();
-  return { jwt: body.jwt, address: body.address };
+  return { jwt: body.jwt, address: body.address, address_id: body.address_id };
 }
 
 /**
